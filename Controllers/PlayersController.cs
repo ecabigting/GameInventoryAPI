@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GameInventoryAPI.Controllers 
 {
-    [ApiController]
-    [Route("[controller]")]
+    // [ApiController]
+    // [Route("[controller]")]
     public class PlayersController : ControllerBase
     {
         private readonly InMemPlayerRepository repo;
