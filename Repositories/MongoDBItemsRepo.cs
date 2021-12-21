@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using GameInventoryAPI.Entities;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace GameInventoryAPI.Repositories 
@@ -33,7 +34,7 @@ namespace GameInventoryAPI.Repositories
 
         public IEnumerable<Item> GetItems()
         {
-            throw new NotImplementedException();
+            return itemsCollection.Find(new BsonDocument()).ToList();
         }
 
         public void UpdateItem(Item item)
