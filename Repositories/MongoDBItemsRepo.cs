@@ -12,6 +12,7 @@ namespace GameInventoryAPI.Repositories
         private const string dbName = "gameinventorydB";
         private const string collectionName = "items";
         private readonly IMongoCollection<Item> itemsCollection;
+        private readonly FilterDefinitionBuilder<Item> filterBuilder = Builders<Item>.Filter;
         public MongoDBItemsRepo(IMongoClient mongoClient) 
         {
             IMongoDatabase database = mongoClient.GetDatabase(dbName);
@@ -29,7 +30,9 @@ namespace GameInventoryAPI.Repositories
 
         public Item GetItem(Guid id)
         {
-            throw new NotImplementedException();
+            // MongoDB needs to use filter builder as it returns as it filters the items
+            var filter = filterBuilder.Eq(i => i.Id, id);
+            return itemsCollection.Find(filter).SingleOrDefault();
         }
 
         public IEnumerable<Item> GetItems()
