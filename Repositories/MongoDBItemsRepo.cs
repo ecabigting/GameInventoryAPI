@@ -25,7 +25,9 @@ namespace GameInventoryAPI.Repositories
 
         public void DeleteItem(Guid id)
         {
-            throw new NotImplementedException();
+            // MongoDB needs to use filter builder as it returns as it filters the items
+            var filter = filterBuilder.Eq(i => i.Id, id);
+            itemsCollection.DeleteOne(filter);
         }
 
         public Item GetItem(Guid id)
@@ -42,6 +44,7 @@ namespace GameInventoryAPI.Repositories
 
         public void UpdateItem(Item item)
         {
+            // MongoDB needs to use filter builder as it returns as it filters the items
             var filter = filterBuilder.Eq(existingItem => existingItem.Id, item.Id);
             itemsCollection.ReplaceOne(filter,item);
         }
