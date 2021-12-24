@@ -9,7 +9,7 @@
 ![C#](https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)
 
-A simple game inventory API build with .net 5
+A simple game inventory API build with .net 5 with Repository Pattern
 
 Spin up a docker image for mongo
 ```bash
