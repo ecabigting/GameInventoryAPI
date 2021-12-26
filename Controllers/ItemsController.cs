@@ -6,6 +6,7 @@ using GameInventoryAPI.Entities;
 using System;
 using System.Linq;
 using GameInventoryAPI.Dtos;
+using System.Threading.Tasks;
 
 namespace GameInventoryAPI.Controllers 
 {
@@ -21,21 +22,17 @@ namespace GameInventoryAPI.Controllers
         }
 
         [HttpGet]
-        public ActionResult<ItemDto> GetItems()
+        public async Task<IEnumerable<ItemDto>> GetItemsAsync()
         {
-            var items = repo.GetItems().Select(i => i.AsDto());
-
-            if(items is null)
-            {
-                return NotFound();
-            }
-            return Ok(items);
+            var items = (await repo.GetItemsAsync())
+                        .Select(i => i.AsDto());
+            return items;
         }
 
         [HttpGet("{Id}")]
-        public ActionResult<ItemDto> GetItem(Guid Id)
+        public async Task<ActionResult<ItemDto>> GetItemAsync(Guid Id)
         {
-            var item = repo.GetItem(Id);
+            var item = await repo.GetItemAsync(Id);
             if(item is null)
             {
                 return NotFound();
@@ -44,7 +41,7 @@ namespace GameInventoryAPI.Controllers
         }
 
         [HttpPost]
-        public ActionResult<ItemDto> CreateItem(CreateItemDto itemDto)
+        public async Task<ActionResult<ItemDto>> CreateItemAsync(CreateItemDto itemDto)
         {
             Item item = new(){
                 Id = Guid.NewGuid(),
@@ -52,16 +49,16 @@ namespace GameInventoryAPI.Controllers
                 Price = itemDto.Price,
                 CreatedDate = DateTimeOffset.UtcNow
             };
-            repo.CreateItem(item);
+            await repo.CreateItemAsync(item);
 
             // created at action get the action of GetItem, return anon object with new item id, return the dto
-            return CreatedAtAction(nameof(GetItem),new {id = item.Id}, item.AsDto());
+            return CreatedAtAction(nameof(GetItemAsync),new {id = item.Id}, item.AsDto());
         }
 
         [HttpPut("{id}")]
-        public ActionResult UpdateItem(Guid id, UpdateItemDto itemDto)
+        public async Task<ActionResult> UpdateItemAsync(Guid id, UpdateItemDto itemDto)
         {
-            var existingItem = repo.GetItem(id);
+            var existingItem = await repo.GetItemAsync(id);
             if(existingItem is null)
             {
                 return NotFound();
@@ -76,22 +73,21 @@ namespace GameInventoryAPI.Controllers
                 Price = itemDto.Price
             };
 
-            repo.UpdateItem(updatedItem);
+            await repo.UpdateItemAsync(updatedItem);
 
             return NoContent();
 
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteItem(Guid id)
+        public async Task<ActionResult> DeleteItemAsync(Guid id)
         {
-            var existingItem = repo.GetItem(id);
+            var existingItem = await repo.GetItemAsync(id);
             if(existingItem is null)
             {
                 return NotFound();
             }
-
-            repo.DeleteItem(id);
+            await repo.DeleteItemAsync(id);
             return NoContent();
         }
     }

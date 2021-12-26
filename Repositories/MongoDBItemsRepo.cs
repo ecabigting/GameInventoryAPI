@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using GameInventoryAPI.Entities;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -18,35 +19,35 @@ namespace GameInventoryAPI.Repositories
             IMongoDatabase database = mongoClient.GetDatabase(dbName);
             itemsCollection = database.GetCollection<Item>(collectionName);
         }
-        public void CreateItem(Item item)
+        public async Task CreateItemAsync(Item item)
         {
-            itemsCollection.InsertOne(item);
+            await itemsCollection.InsertOneAsync(item);
         }
 
-        public void DeleteItem(Guid id)
-        {
-            // MongoDB needs to use filter builder as it returns as it filters the items
-            var filter = filterBuilder.Eq(i => i.Id, id);
-            itemsCollection.DeleteOne(filter);
-        }
-
-        public Item GetItem(Guid id)
+        public async Task DeleteItemAsync(Guid id)
         {
             // MongoDB needs to use filter builder as it returns as it filters the items
             var filter = filterBuilder.Eq(i => i.Id, id);
-            return itemsCollection.Find(filter).SingleOrDefault();
+            await itemsCollection.DeleteOneAsync(filter);
         }
 
-        public IEnumerable<Item> GetItems()
+        public async Task<Item> GetItemAsync(Guid id)
         {
-            return itemsCollection.Find(new BsonDocument()).ToList();
+            // MongoDB needs to use filter builder as it returns as it filters the items
+            var filter = filterBuilder.Eq(i => i.Id, id);
+            return await itemsCollection.Find(filter).SingleOrDefaultAsync();
         }
 
-        public void UpdateItem(Item item)
+        public async Task<IEnumerable<Item>> GetItemsAsync()
+        {
+            return await itemsCollection.Find(new BsonDocument()).ToListAsync();
+        }
+
+        public async Task UpdateItemAsync(Item item)
         {
             // MongoDB needs to use filter builder as it returns as it filters the items
             var filter = filterBuilder.Eq(existingItem => existingItem.Id, item.Id);
-            itemsCollection.ReplaceOne(filter,item);
+            await itemsCollection.ReplaceOneAsync(filter,item);
         }
     }
 }
