@@ -32,8 +32,8 @@ namespace GameInventoryAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
-            BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
+            BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String)); // returns the correct readable value
+            BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String)); // returns the correct readable value
 
             // inject mongoclient to app
             services.AddSingleton<IMongoClient>(serviceProvider => {
@@ -43,7 +43,9 @@ namespace GameInventoryAPI
 
             services.AddSingleton<IItemsRepository, MongoDBItemsRepo>();
             
-            services.AddControllers();
+            services.AddControllers(options => {
+                options.SuppressAsyncSuffixInActionNames = false;
+            });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "GameInventoryAPI", Version = "v1" });
