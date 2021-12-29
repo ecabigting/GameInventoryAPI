@@ -5,11 +5,13 @@ namespace GameInventoryAPI.Settings
     {
         public string Host { get; set; }
         public int Port { get; set; }
+        public string User { get; set; }
+        public string Password { get; set; }
 
         public string ConnString { 
             get
             {
-                return $"mongodb://{Host}:{Port}";
+                return $"mongodb://{User}:{Password}@{Host}:{Port}";
             } 
         }
     }    
