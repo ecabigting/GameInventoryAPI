@@ -13,7 +13,7 @@ A simple game inventory API build with .net 5 with Repository Pattern
 
 Spin up a docker image for MongoDB
 ```bash
-sudo docker run -d --rm --name mongo -p 27017:27017 -v mongodbdata:/data/db -e MONGO_INITDB_ROOT_USERNAME= -e MONGO_INITDB_ROOT_PASSWORD= -mongo
+sudo docker run -d --rm --name mongo -p 27017:27017 -v mongodbdata:/data/db -e MONGO_INITDB_ROOT_USERNAME= -e MONGO_INITDB_ROOT_PASSWORD= mongo
 ```
 
 Initialize dotnet Secret Manager

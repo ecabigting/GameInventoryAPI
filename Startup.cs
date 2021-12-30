@@ -1,11 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
+using System.Text.Json;
 using System.Threading.Tasks;
 using GameInventoryAPI.Repositories;
 using GameInventoryAPI.Settings;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -34,10 +38,9 @@ namespace GameInventoryAPI
         {
             BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String)); // returns the correct readable value
             BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String)); // returns the correct readable value
-
+            var settings = Configuration.GetSection(nameof(DBSettings)).Get<DBSettings>(); // setting up the connection string
             // inject mongoclient to app
-            services.AddSingleton<IMongoClient>(serviceProvider => {
-                var settings = Configuration.GetSection(nameof(DBSettings)).Get<DBSettings>(); // setting up the connection string
+            services.AddSingleton<IMongoClient>(serviceProvider => {                
                 return new MongoClient(settings.ConnString);
             });
 
@@ -46,10 +49,19 @@ namespace GameInventoryAPI
             services.AddControllers(options => {
                 options.SuppressAsyncSuffixInActionNames = false;
             });
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "GameInventoryAPI", Version = "v1" });
             });
+            
+            // mongodb health check
+            services.AddHealthChecks()
+                    .AddMongoDb(
+                        settings.ConnString, 
+                        name:"dbstatus",
+                        timeout: TimeSpan.FromSeconds(3),
+                        tags: new []{"ready"});
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -71,6 +83,31 @@ namespace GameInventoryAPI
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+
+                endpoints.MapHealthChecks("/apistatus/ready", new HealthCheckOptions {
+                    Predicate = (check) => check.Tags.Contains("ready"), // returns ready when database is ready, check line with comment `mongodb health check` under ConfigureServices
+                    ResponseWriter = async(context,report) => 
+                    {
+                        var result = JsonSerializer.Serialize(
+                            new {
+                                status = report.Status.ToString(),
+                                checks = report.Entries.Select(e => new {
+                                    name = e.Key,
+                                    status = e.Value.Status.ToString(),
+                                    ex = e.Value.Exception != null ? e.Value.Exception.Message : "none",
+                                    duration = e.Value.Duration.ToString()
+                                })
+                            }
+                        );
+
+                        context.Response.ContentType = MediaTypeNames.Application.Json;
+                        await context.Response.WriteAsync(result);
+                    }
+                });
+
+                endpoints.MapHealthChecks("/apistatus/live", new HealthCheckOptions {
+                    Predicate = (_) => false // return 200 that API is ready to serve request
+                });
             });
         }
     }
