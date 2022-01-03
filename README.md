@@ -27,3 +27,9 @@ Set dotnet Secret password
 ```bash
 dotnet user-secrets set DBSettings:Password value
 ```
+
+Running the building the docker image `-t` speficy a tag version 1 and `.` to specify as the current directory
+`note: cannot use caps on tag `
+```bash
+docker build -t gameinventory:v1 .
+```
