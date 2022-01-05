@@ -11,25 +11,5 @@
 
 A simple game inventory API build with .net 5 with Repository Pattern
 
-Spin up a docker image for MongoDB
-```bash
-sudo docker run -d --rm --name mongo -p 27017:27017 -v mongodbdata:/data/db -e MONGO_INITDB_ROOT_USERNAME= -e MONGO_INITDB_ROOT_PASSWORD= mongo
-```
+A docker image of the API is available [here](https://hub.docker.com/r/superecabigting/gameinventory).
 
-Initialize dotnet Secret Manager
-```bash
-dotnet user-secrets init
-```
-
-Set dotnet Secret password 
-
-``NOTE: DO NOT USE '@' as part of any value for MongoDB connection string. It is a reserved character``
-```bash
-dotnet user-secrets set DBSettings:Password value
-```
-
-Running the building the docker image `-t` speficy a tag version 1 and `.` to specify as the current directory
-`note: cannot use caps on tag `
-```bash
-docker build -t gameinventory:v1 .
-```
