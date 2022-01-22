@@ -11,7 +11,7 @@ namespace GameInventoryAPI.Settings
         public string ConnString { 
             get
             {
-                return $"mongodb://{User}:{Password}@{Host}:{Port}";
+                return $"mongodb+srv://{User}:{Password}@{Host}?retryWrites=true&w=majority:{Port}";
             } 
         }
     }    
