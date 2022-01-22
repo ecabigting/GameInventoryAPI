@@ -49,6 +49,18 @@ docker run -it --rm -p 8080:80 -e DBSettings:Host=mongo -e DBSettings:Password=v
 ```
 
 Publishing an image to `docker hub`
-```bash
+```
 docker push <username>/gameinventory:v1
 ```
+
+## Deploying to Heroku ##
+- Make sure the connection string to MongoDb Atlas is this format
+    ```c#
+    return $"mongodb+srv://{User}:{Password}@{Host}/defaultMdB?retryWrites=true&w=majority";
+    ```
+- Deploy using github and select the correct repository
+- Setup Environment variable in Heroku under `Settings` -> `Config Vars`  
+- For Drill down settings For example `DBSettings:{ Host : 'mongodbo'}`. The key host must be specified as follows: `DBSettings__Host`
+- Dont forget to add a Buildpacks in this case use `https://github.com/jincod/dotnetcore-buildpack`
+- You are all set!
+
